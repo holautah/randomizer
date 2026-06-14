@@ -1,43 +1,120 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Sorteo Teams</title>
-    <style>
-        body { background: #000; color: #fff; font-family: sans-serif; margin: 0; padding: 40px; display: flex; flex-direction: column; align-items: center; }
-        .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 40px; width: 100%; max-width: 1000px; margin-bottom: 60px; }
-        .person { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; font-size: 18px; }
-        
-        /* Estilo del Switch */
-        .switch { position: relative; display: inline-block; width: 40px; height: 20px; }
-        .switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #333; transition: .4s; border-radius: 20px; }
-        .slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
-        input:checked + .slider { background-color: #fff; }
-        input:checked + .slider:before { transform: translateX(20px); background-color: #000; }
+import React, { useState, useMemo } from 'react';
 
-        /* Controles */
-        .winner-display { margin-bottom: 20px; color: #888; font-size: 18px; }
-        .controls { display: flex; gap: 20px; }
-        button { padding: 10px 20px; cursor: pointer; background: transparent; color: #fff; border: 1px solid #fff; border-radius: 20px; font-size: 14px; transition: 0.3s; }
-        button:hover { background: #fff; color: #000; }
-    </style>
-</head>
-<body>
+const ALL_PEOPLE = [
+  // Madrid Group
+  { id: 1, name: 'África', location: 'Madrid' }, { id: 2, name: 'Alejandro', location: 'Madrid' },
+  { id: 3, name: 'Alessandro', location: 'Madrid' }, { id: 4, name: 'Alejandra', location: 'Madrid' },
+  { id: 5, name: 'Alexandra', location: 'Madrid' }, { id: 6, name: 'Ana', location: 'Madrid' },
+  { id: 7, name: 'Claudia', location: 'Madrid' }, { id: 8, name: 'David', location: 'Madrid' },
+  { id: 9, name: 'Gabor', location: 'Madrid' }, { id: 10, name: 'Nacho', location: 'Madrid' },
+  { id: 11, name: 'Juan F.', location: 'Madrid' }, { id: 12, name: 'Juan E.', location: 'Madrid' },
+  { id: 13, name: 'Julen', location: 'Madrid' }, { id: 14, name: 'Jara', location: 'Madrid' },
+  { id: 15, name: 'Lucía', location: 'Madrid' }, { id: 16, name: 'Luis', location: 'Madrid' },
+  { id: 17, name: 'Matt', location: 'Madrid' }, { id: 18, name: 'Patricio', location: 'Madrid' },
+  { id: 19, name: 'Roberto', location: 'Madrid' }, { id: 20, name: 'Sara', location: 'Madrid' },
+  { id: 21, name: 'Rui', location: 'Madrid' },
+  // London Group
+  { id: 22, name: 'Andre', location: 'London' }, { id: 23, name: 'Craig', location: 'London' },
+  { id: 24, name: 'Drew', location: 'London' }, { id: 25, name: 'Eddie', location: 'London' },
+  { id: 26, name: 'Ed', location: 'London' }, { id: 27, name: 'Elliot', location: 'London' },
+  { id: 28, name: 'Joyce', location: 'London' }, { id: 29, name: 'Jibby', location: 'London' },
+  { id: 30, name: 'Laurence', location: 'London' }, { id: 31, name: 'Leif', location: 'London' },
+  { id: 32, name: 'Lisa', location: 'London' }, { id: 33, name: 'Ludo', location: 'London' },
+  { id: 34, name: 'Nick', location: 'London' }, { id: 35, name: 'Paulina', location: 'London' },
+  { id: 36, name: 'Sasha', location: 'London' }, { id: 37, name: 'Tom', location: 'London' },
+  { id: 38, name: 'Trayana', location: 'London' }, { id: 39, name: 'Yasuyuki', location: 'London' },
+  { id: 40, name: 'Hayley', location: 'London' }
+];
 
-    <div class="grid" id="listContainer"></div>
+export default function WinnerPickerApp() {
+  const [activeIds, setActiveIds] = useState(ALL_PEOPLE.map(p => p.id));
+  const [winner, setWinner] = useState(null);
+  const [filter, setFilter] = useState('All'); // 'All', 'Madrid', 'London'
 
-    <div class="winner-display" id="winner">Aún no hay ganador...</div>
+  const togglePerson = (id) => {
+    setActiveIds(prev => 
+      prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
+    );
+    setWinner(null);
+  };
 
-    <div class="controls">
-        <button onclick="sorteo('madrid')">SORTEO MADRID</button>
-        <button onclick="sorteo('all')">SORTEO UNIFICADO (AMBOS GRUPOS)</button>
-        <button onclick="sorteo('london')">SORTEO LONDON</button>
+  const pickWinner = () => {
+    const pool = ALL_PEOPLE.filter(p => activeIds.includes(p.id));
+    if (pool.length === 0) return;
+    const randomIndex = Math.floor(Math.random() * pool.length);
+    setWinner(pool[randomIndex]);
+  };
+
+  const filteredPeople = useMemo(() => {
+    if (filter === 'All') return ALL_PEOPLE;
+    return ALL_PEOPLE.filter(p => p.location === filter);
+  }, [filter]);
+
+  return (
+    <div className="min-h-screen bg-black text-white p-4 md:p-8 font-sans">
+      <div className="max-w-4xl mx-auto">
+        <header className="mb-12 text-center">
+      <h1 className="text-4xl font-bold tracking-tight mb-4">Designer of the Week</h1>
+      
+      <div className="flex flex-wrap justify-center gap-4 mb-8">
+        <button 
+          onClick={pickWinner}
+              className="px-8 py-3 bg-white text-black font-semibold rounded-full hover:bg-gray-200 transition-all active:scale-95"
+            >
+              Pick Random Winner
+            </button>
+          </div>
+
+          <div className="flex justify-center gap-4 text-sm uppercase tracking-widest text-gray-400">
+            {['All', 'Madrid', 'London'].map(loc => (
+              <button 
+                key={loc}
+                onClick={() => setFilter(loc)}
+                className={`px-6 py-2 border rounded-full transition-all ${filter === loc ? 'border-white text-white' : 'border-gray-800 hover:border-gray-500'}`}
+              >
+                {loc}
+              </button>
+            ))}
+          </div>
+        </header>
+
+        {}
+        {winner && (
+          <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4 animate-in fade-in zoom-in duration-300">
+            <div className="text-center">
+              <h2 className="text-gray-400 text-xl uppercase tracking-widest mb-4">The Winner Is</h2>
+              <div className="text-6xl md:text-8xl font-bold mb-8">{winner.name}</div>
+              <button 
+                onClick={() => setWinner(null)}
+                className="px-6 py-2 border border-gray-600 rounded-full hover:bg-gray-900"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        )}
+
+        {}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
+          {filteredPeople.map(person => {
+            const isActive = activeIds.includes(person.id);
+            return (
+              <button
+                key={person.id}
+                onClick={() => togglePerson(person.id)}
+                className={`text-left p-2 rounded-lg transition-all duration-300 ${
+                  isActive ? 'text-white opacity-100' : 'text-gray-600 opacity-30 hover:opacity-50'
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  <div className={`w-3 h-3 rounded-full ${isActive ? 'bg-green-500' : 'bg-gray-800'}`} />
+                  <span className="text-lg md:text-xl font-light">{person.name}</span>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      </div>
     </div>
-
-    <script>
-        const data = [
-            {name: "África", group: "madrid", active: true}, {name: "Alejandro", group: "madrid", active: true}, {name: "Alessandro", group: "madrid", active: true}, {name: "Alejandra", group: "madrid", active: true}, {name: "Alexandra", group: "madrid", active: true}, {name: "Ana", group: "madrid", active: true}, {name: "Claudia", group: "madrid", active: true}, {name: "David", group: "madrid", active: true}, {name: "Gabor", group: "madrid", active: true}, {name: "Nacho", group: "madrid", active: true}, {name: "Juan F.", group: "madrid", active: true},
-            {name: "Juan E.", group: "london", active: true}, {name: "Julen", group: "london", active: true}, {name: "Jara", group: "london", active: true}, {name: "Lucía", group: "london", active: true}, {name: "Luis", group: "london", active: true}, {name: "Matt", group: "london", active: true}, {name: "Patricio", group: "london", active: true}, {name: "Roberto", group: "london", active: true}, {name: "Sara", group: "london", active: true}, {name: "Rui", group: "london", active: true},
-            {name: "Andre", group: "london", active: true}, {name: "Craig", group: "london", active: true}, {name: "Drew", group: "london", active: true}, {name: "Eddie", group: "london", active: true}, {name: "Ed", group: "london", active: true}, {name: "Elliot", group: "london", active: true}, {name: "Joyce", group: "london", active: true}, {name: "Jibby", group: "london", active: true}, {name: "Laurence", group: "london", active: true}, {name: "Leif", group: "london", active: true},
-            {name: "Lisa", group: "london", active: true}, {name: "Ludo", group: "london", active: true
+  );
+}
