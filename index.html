@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Sorteo Teams</title>
+    <style>
+        body { background: #000; color: #fff; font-family: 'Aeonik', sans-serif; display: flex; flex-direction: column; align-items: center; padding: 50px; }
+        .container { display: flex; gap: 100px; margin-top: 50px; }
+        .group { display: flex; flex-direction: column; gap: 10px; min-width: 200px; }
+        .person { cursor: pointer; padding: 5px; transition: opacity 0.3s; opacity: 1; }
+        .person.inactive { opacity: 0.2; }
+        .controls { margin-top: 50px; display: flex; gap: 20px; }
+        button { padding: 10px 20px; cursor: pointer; background: #fff; border: none; border-radius: 20px; font-weight: bold; }
+        #winner { margin-top: 30px; font-size: 24px; color: #0f0; }
+    </style>
+</head>
+<body>
+
+    <h1>Sorteo</h1>
+    <div class="container">
+        <div class="group" id="madrid"><h2>MADRID</h2></div>
+        <div class="group" id="london"><h2>LONDON</h2></div>
+    </div>
+
+    <div class="controls">
+        <button onclick="sorteo('madrid')">Sortear Madrid</button>
+        <button onclick="sorteo('london')">Sortear London</button>
+        <button onclick="sorteo('all')" style="background: #f00; color: #fff;">Sortear Ambos</button>
+    </div>
+
+    <div id="winner"></div>
+
+    <script>
+        const data = [
+            {name: "África", group: "madrid"}, {name: "Alejandro", group: "madrid"}, {name: "Alessandro", group: "madrid"},
+            {name: "Alejandra", group: "madrid"}, {name: "Alexandra", group: "madrid"}, {name: "Ana", group: "madrid"},
+            {name: "Claudia", group: "madrid"}, {name: "David", group: "madrid"}, {name: "Gabor", group: "madrid"},
+            {name: "Nacho", group: "madrid"}, {name: "Juan F.", group: "madrid"}, {name: "Juan E.", group: "london"},
+            {name: "Julen", group: "london"}, {name: "Jara", group: "london"}, {name: "Lucía", group: "london"},
+            {name: "Luis", group: "london"}, {name: "Matt", group: "london"}, {name: "Patricio", group: "london"},
+            {name: "Roberto", group: "london"}, {name: "Sara", group: "london"}, {name: "Rui", group: "london"},
+            {name: "Andre", group: "london"}, {name: "Craig", group: "london"}, {name: "Drew", group: "london"},
+            {name: "Eddie", group: "london"}, {name: "Ed", group: "london"}, {name: "Elliot", group: "london"},
+            {name: "Joyce", group: "london"}, {name: "Jibby", group: "london"}, {name: "Laurence", group: "london"},
+            {name: "Leif", group: "london"}, {name: "Lisa", group: "london"}, {name: "Ludo", group: "london"},
+            {name: "Nick", group: "london"}, {name: "Paulina", group: "london"}, {name: "Sasha", group: "london"},
+            {name: "Tom", group: "london"}, {name: "Trayana", group: "london"}, {name: "Yasuyuki", group: "london"},
+            {name: "Hayley", group: "london"}
+        ];
+
+        // Inicializar
+        data.forEach(p => p.active = true);
+        
+        function render() {
+            document.querySelectorAll('.group').forEach(g => g.innerHTML = `<h2>${g.id.toUpperCase()}</h2>`);
+            data.forEach(p => {
+                const el = document.createElement('div');
+                el.className = `person ${p.active ? '' : 'inactive'}`;
+                el.innerText = p.name;
+                el.onclick = () => { p.active = !p.active; render(); };
+                document.getElementById(p.group).appendChild(el);
+            });
+        }
+
+        function sorteo(tipo) {
+            const pool = data.filter(p => p.active && (tipo === 'all' || p.group === tipo));
+            if (pool.length === 0) return alert("No hay personas activas en este grupo");
+            const winner = pool[Math.floor(Math.random() * pool.length)];
+            document.getElementById('winner').innerText = `Ganador: ${winner.name} (${winner.group})`;
+        }
+
+        render();
+    </script>
+</body>
+</html>
