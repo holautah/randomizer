@@ -4,72 +4,40 @@
     <meta charset="UTF-8">
     <title>Sorteo Teams</title>
     <style>
-        body { background: #000; color: #fff; font-family: 'Aeonik', sans-serif; display: flex; flex-direction: column; align-items: center; padding: 50px; }
-        .container { display: flex; gap: 100px; margin-top: 50px; }
-        .group { display: flex; flex-direction: column; gap: 10px; min-width: 200px; }
-        .person { cursor: pointer; padding: 5px; transition: opacity 0.3s; opacity: 1; }
-        .person.inactive { opacity: 0.2; }
-        .controls { margin-top: 50px; display: flex; gap: 20px; }
-        button { padding: 10px 20px; cursor: pointer; background: #fff; border: none; border-radius: 20px; font-weight: bold; }
-        #winner { margin-top: 30px; font-size: 24px; color: #0f0; }
+        body { background: #000; color: #fff; font-family: sans-serif; margin: 0; padding: 40px; display: flex; flex-direction: column; align-items: center; }
+        .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 40px; width: 100%; max-width: 1000px; margin-bottom: 60px; }
+        .person { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; font-size: 18px; }
+        
+        /* Estilo del Switch */
+        .switch { position: relative; display: inline-block; width: 40px; height: 20px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #333; transition: .4s; border-radius: 20px; }
+        .slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: #fff; }
+        input:checked + .slider:before { transform: translateX(20px); background-color: #000; }
+
+        /* Controles */
+        .winner-display { margin-bottom: 20px; color: #888; font-size: 18px; }
+        .controls { display: flex; gap: 20px; }
+        button { padding: 10px 20px; cursor: pointer; background: transparent; color: #fff; border: 1px solid #fff; border-radius: 20px; font-size: 14px; transition: 0.3s; }
+        button:hover { background: #fff; color: #000; }
     </style>
 </head>
 <body>
 
-    <h1>Sorteo</h1>
-    <div class="container">
-        <div class="group" id="madrid"><h2>MADRID</h2></div>
-        <div class="group" id="london"><h2>LONDON</h2></div>
-    </div>
+    <div class="grid" id="listContainer"></div>
+
+    <div class="winner-display" id="winner">Aún no hay ganador...</div>
 
     <div class="controls">
-        <button onclick="sorteo('madrid')">Sortear Madrid</button>
-        <button onclick="sorteo('london')">Sortear London</button>
-        <button onclick="sorteo('all')" style="background: #f00; color: #fff;">Sortear Ambos</button>
+        <button onclick="sorteo('madrid')">SORTEO MADRID</button>
+        <button onclick="sorteo('all')">SORTEO UNIFICADO (AMBOS GRUPOS)</button>
+        <button onclick="sorteo('london')">SORTEO LONDON</button>
     </div>
-
-    <div id="winner"></div>
 
     <script>
         const data = [
-            {name: "África", group: "madrid"}, {name: "Alejandro", group: "madrid"}, {name: "Alessandro", group: "madrid"},
-            {name: "Alejandra", group: "madrid"}, {name: "Alexandra", group: "madrid"}, {name: "Ana", group: "madrid"},
-            {name: "Claudia", group: "madrid"}, {name: "David", group: "madrid"}, {name: "Gabor", group: "madrid"},
-            {name: "Nacho", group: "madrid"}, {name: "Juan F.", group: "madrid"}, {name: "Juan E.", group: "london"},
-            {name: "Julen", group: "london"}, {name: "Jara", group: "london"}, {name: "Lucía", group: "london"},
-            {name: "Luis", group: "london"}, {name: "Matt", group: "london"}, {name: "Patricio", group: "london"},
-            {name: "Roberto", group: "london"}, {name: "Sara", group: "london"}, {name: "Rui", group: "london"},
-            {name: "Andre", group: "london"}, {name: "Craig", group: "london"}, {name: "Drew", group: "london"},
-            {name: "Eddie", group: "london"}, {name: "Ed", group: "london"}, {name: "Elliot", group: "london"},
-            {name: "Joyce", group: "london"}, {name: "Jibby", group: "london"}, {name: "Laurence", group: "london"},
-            {name: "Leif", group: "london"}, {name: "Lisa", group: "london"}, {name: "Ludo", group: "london"},
-            {name: "Nick", group: "london"}, {name: "Paulina", group: "london"}, {name: "Sasha", group: "london"},
-            {name: "Tom", group: "london"}, {name: "Trayana", group: "london"}, {name: "Yasuyuki", group: "london"},
-            {name: "Hayley", group: "london"}
-        ];
-
-        // Inicializar
-        data.forEach(p => p.active = true);
-        
-        function render() {
-            document.querySelectorAll('.group').forEach(g => g.innerHTML = `<h2>${g.id.toUpperCase()}</h2>`);
-            data.forEach(p => {
-                const el = document.createElement('div');
-                el.className = `person ${p.active ? '' : 'inactive'}`;
-                el.innerText = p.name;
-                el.onclick = () => { p.active = !p.active; render(); };
-                document.getElementById(p.group).appendChild(el);
-            });
-        }
-
-        function sorteo(tipo) {
-            const pool = data.filter(p => p.active && (tipo === 'all' || p.group === tipo));
-            if (pool.length === 0) return alert("No hay personas activas en este grupo");
-            const winner = pool[Math.floor(Math.random() * pool.length)];
-            document.getElementById('winner').innerText = `Ganador: ${winner.name} (${winner.group})`;
-        }
-
-        render();
-    </script>
-</body>
-</html>
+            {name: "África", group: "madrid", active: true}, {name: "Alejandro", group: "madrid", active: true}, {name: "Alessandro", group: "madrid", active: true}, {name: "Alejandra", group: "madrid", active: true}, {name: "Alexandra", group: "madrid", active: true}, {name: "Ana", group: "madrid", active: true}, {name: "Claudia", group: "madrid", active: true}, {name: "David", group: "madrid", active: true}, {name: "Gabor", group: "madrid", active: true}, {name: "Nacho", group: "madrid", active: true}, {name: "Juan F.", group: "madrid", active: true},
+            {name: "Juan E.", group: "london", active: true}, {name: "Julen", group: "london", active: true}, {name: "Jara", group: "london", active: true}, {name: "Lucía", group: "london", active: true}, {name: "Luis", group: "london", active: true}, {name: "Matt", group: "london", active: true}, {name: "Patricio", group: "london", active: true}, {name: "Roberto", group: "london", active: true}, {name: "Sara", group: "london", active: true}, {name: "Rui", group: "london", active: true},
+            {name: "Andre", group: "london", active: true}, {name: "Craig", group: "london", active: true}, {name: "Drew", group: "london", active: true}, {name: "Eddie", group: "london", active: true}, {name: "Ed", group: "london", active: true}, {name: "Elliot", group: "london", active: true}, {name: "Joyce", group: "london", active: true}, {name: "Jibby", group: "london", active: true}, {name: "Laurence", group: "london", active: true}, {name: "Leif", group: "london", active: true},
+            {name: "Lisa", group: "london", active: true}, {name: "Ludo", group: "london", active: true
